@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"tempconv0"
+	"tempconv"
 )
 
 func main() {
@@ -16,11 +16,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "cd : %v\n", err)
 			os.Exit(1)
 		}
+
+		k := tempconv.Kelvin(t)
+		f := tempconv.Fahrenheit(t)
+		c := tempconv.Celsius(t)
+
+		fmt.Printf("%s = %s, %s = %s, %s = %s \n", f, tempconv.FToC(f), c, tempconv.CToF(c), k, tempconv.KToC(k))
 	}
-
-	k := tempconv0.Kelvin(t)
-	f := tempconv0.Fahrenheit(t)
-	c := tempconv0.Celcius(t)
-
-	fmt.Printf("%s = %s, %s = %s, %s = %s \n", f, tempconv0.FtoC(f), c, tempconv0.CToF(c), k, tempconv0.CToK(k))
 }
