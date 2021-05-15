@@ -1,29 +1,51 @@
 package main
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"strings"
+)
 
 // comma , inserts comma after every 3 integers
 
 func comma(s string) string {
 	n := len(s)
+	mod3 := n % 3
 
-	r := ""
+	var rString bytes.Buffer
 
-	if n <= 3 {
+	if mod3 == 0 {
+		mod3 = 3 // if it has multiple of 3's digits the we can divide it into triple groups
+	}
+	// get the first part
+	rString.WriteString(s[:mod3])
 
-		return s
+	for i := mod3; i+3 < n; i += 3 {
+		rString.WriteByte(',')
+		rString.WriteString(s[i : i+3])
 	}
 
-	for i := len(s); i >= 3; i -= 3 {
-		r = s[i-3:i] + "," + r
+	return rString.String()
+}
+
+func handleComma(s string) string {
+
+	dotIndex := strings.LastIndex(s, ".")
+
+	if dotIndex == -1 {
+		return comma(s)
 	}
-	return r
+	afterDot := s[dotIndex:]
+	beforeDot := s[:dotIndex]
+	beforeDot = comma(s[:dotIndex])
+	return beforeDot + afterDot
+
 }
 
 func main() {
 
-	ex := "1234567"
+	ex := "723741327132727183721573.82512358"
 
-	fmt.Printf(comma(ex) + "\n")
+	fmt.Printf(handleComma(ex) + "\n")
 
 }
