@@ -11,9 +11,9 @@ func remove(s *[]int, i int) {
 
 func remdup(s *[]int) {
 
-	for i := 1; i < len(*s)-1; i++ {
+	for i := 0; i < len(*s)-1; i++ {
 
-		if (*s)[i] == (*s)[i-1] || (*s)[i] == (*s)[i+1] {
+		for (*s)[i+1] == (*s)[i] {
 			remove(s, i)
 		}
 
@@ -22,7 +22,7 @@ func remdup(s *[]int) {
 }
 
 func main() {
-	s := []int{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 4, 5, 6}
+	s := []int{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 1, 1, 1, 1, 4, 4, 4, 4, 5, 6}
 
 	remdup(&s)
 
