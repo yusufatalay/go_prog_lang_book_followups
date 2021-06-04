@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
 
-const IssueURL = "https://api.github.com/search/issues"
+const AllIssuesURL = "https://api.github.com/search/issues"
+const IssueURL = "https://api.github.com/repos/"
 
 type IssuesSearchResult struct {
 	TotalCount int `json:"total_count"`
@@ -36,7 +38,7 @@ type User struct {
 
 func SearchIssues(terms []string) (*IssuesSearchResult, error) {
 	q := url.QueryEscape(strings.Join(terms, " "))
-	resp, err := http.Get(IssueURL + "?q=" + q)
+	resp, err := http.Get(AllIssuesURL + "?q=" + q)
 	if err != nil {
 		return nil, err
 	}
@@ -53,4 +55,29 @@ func SearchIssues(terms []string) (*IssuesSearchResult, error) {
 	}
 	resp.Body.Close()
 	return &result, nil
+}
+
+// ReadIssue gathers the issue that corresponds the given "issue number"
+
+func ReadIssue(ownernrepo string, issuenumber int) (*Issue, err) {
+	q := url.QueryEscape(IssueURL + ownernrepo + "/issues/" + strconv.Itoa(issuenumber))
+
+	resp, err := http.Get(q)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, fmt.Errorf("Cannot found the issue may be removed or replaced: %s", resp.Status)
+	}
+
+	var result Issue
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		resp.Body.Close()
+		return nil, err
+	}
+	resp.Body.Close()
+	return &result, nil
+
 }
