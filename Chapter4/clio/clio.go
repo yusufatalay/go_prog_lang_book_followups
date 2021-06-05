@@ -1,6 +1,7 @@
 package clio
 
 import (
+	"strings"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -14,7 +15,7 @@ const DefaultEditor = "vim"
 type PrefferedEditorResolver func() string
 
 // GetPrefferedEditorFromEnviroment returns the users preffered text editor if its not set then it returns the DefaultEditor which is vim
-func GetPrefferedEditorFromEnviroment() string {
+func GetPreferredEditorFromEnviroment() string {
 	editor := os.Getenv("$EDITOR")
 
 	if editor == "" {
@@ -27,7 +28,7 @@ func GetPrefferedEditorFromEnviroment() string {
 func resolveEditorArguments(executable, filename string) []string {
 	args := []string{filename}
 
-	if string.Contains(executable, "Visual Studio Code.app") {
+	if strings.Contains(executable, "Visual Studio Code.app") {
 		args = append([]string{"--wait"}, args...)
 	}
 
@@ -65,7 +66,7 @@ func CaptureInputFromEditor(resolveEditor PrefferedEditorResolver) ([]byte, erro
 
 	defer os.Remove(filename)
 
-	if err = file.Close(); err != nli {
+	if err = file.Close(); err != nil {
 		return []byte{}, err
 	}
 

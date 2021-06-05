@@ -1,7 +1,8 @@
-// gitCRUD is a tool for doing CRUD ops to github issues
+// gitcrud is a tool for doing CRUD ops to github issues
 package main
 
 import (
+	"clio"
 	"fmt"
 	"github"
 	"log"
@@ -48,6 +49,23 @@ func getIssue(ownernrepo, issuenumber string) {
 
 }
 
+func createIssue(ownernrepo string) {
+
+	titlebyte, _ := clio.CaptureInputFromEditor(clio.GetPreferredEditorFromEnviroment)
+	titletxt := string(titlebyte)
+
+	bodybyte, _ := clio.CaptureInputFromEditor(clio.GetPreferredEditorFromEnviroment)
+	bodytxt := string(bodybyte)
+
+	issuenum, err := github.CreateIssue(ownernrepo, titletxt, bodytxt)
+
+	if err != nil {
+		log.Fatalf("an error has occuded: %v\n", err)
+	}
+
+	fmt.Printf("Created issue's number is : %d\n", issuenum)
+}
+
 func main() {
-	getIssue(os.Args[1], os.Args[2])
+	createIssue(os.Args[1])
 }
