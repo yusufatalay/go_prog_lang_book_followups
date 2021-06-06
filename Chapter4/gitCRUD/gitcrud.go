@@ -5,8 +5,10 @@ import (
 	"clio"
 	"fmt"
 	"github"
+	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -57,7 +59,16 @@ func createIssue(ownernrepo string) {
 	bodybyte, _ := clio.CaptureInputFromEditor(clio.GetPreferredEditorFromEnviroment)
 	bodytxt := string(bodybyte)
 
-	issuenum, err := github.CreateIssue(ownernrepo, titletxt, bodytxt)
+	// get the auth key from key.txt file
+	keybyte, err := ioutil.ReadFile("key.txt")
+	if err != nil {
+		log.Fatalf("Error occured while reading the key file : %v", err)
+	}
+	key := string(keybyte)
+	// removing the trailing newline character
+	key = strings.TrimSuffix(key, "\n")
+
+	issuenum, err := github.CreateIssue(ownernrepo, titletxt, bodytxt, key)
 
 	if err != nil {
 		log.Fatalf("an error has occuded: %v\n", err)

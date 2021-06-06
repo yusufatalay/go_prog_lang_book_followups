@@ -16,8 +16,6 @@ import (
 const AllIssuesURL = "https://api.github.com/search/issues"
 // IssueURL is for editing, creating, updating and reading spesific issues
 const IssueURL = "https://api.github.com/repos/"
-// CpntentType this is recommended Content-Type header values in github api docs
-const ContentType = "application/json"
 // IssesSearchResult holds a list of issue 
 type IssuesSearchResult struct {
 	TotalCount int `json:"total_count"`
@@ -86,7 +84,13 @@ func ReadIssue(ownernrepo, issuenumber string) (*Issue, error) {
 
 
 // CreateIssue creates a new issue on given repo with given title and body(body is optional) 
-func CreateIssue(ownernrepo, title, body string) (int , error){
+func CreateIssue(ownernrepo, title, body, authtoken string) (int , error){
+
+	// check if user provides an authorization key if not then throw an error
+	if authtoken == ""{
+		errNoAuth := errors.New("[!]Authorization keys not found please put you key into a authkey.txt file")
+		return 0, errNoAuth
+	}
 
 	// create an issue struct instance
 	issuetosend := Issue{Title : title, Body: body}
@@ -99,7 +103,18 @@ func CreateIssue(ownernrepo, title, body string) (int , error){
 	}
 	// encode the data
 	responsebody := bytes.NewBuffer(issuejson)
-	resp, err := http.Post(IssueURL+ ownernrepo+ "/issues",ContentType,responsebody)
+	// constructing the target URL 
+	reqURL := IssueURL+ ownernrepo+ "/issues"
+	// in order to add custom headers to any request we have to create a client
+	client := &http.Client{}
+
+	req, _ := http.NewRequest("POST",reqURL,responsebody)
+	// setting the headers as recommended
+	req.Header.Set("Authorization","token "+authtoken)
+	req.Header.Set("Accept","application/vnd.github.v3+json")
+
+	// make a post request 
+	resp, err := client.Do(req)
 
 	if err != nil {
 		log.Fatalf("%v",err)
@@ -113,17 +128,18 @@ func CreateIssue(ownernrepo, title, body string) (int , error){
 
 	statcode := resp.StatusCode
 	if statcode == 201{
-		fmt.Println("Issue creatd successfully\n")
+		fmt.Println("Issue creatd successfully")
 		var result Issue
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return 0, err
-	}
-	return result.Number, nil
+		}
+		return result.Number, nil
 	}else if statcode == 403{
 		errForbidden := errors.New("403-Forbidden")
 		return 0 , errForbidden
 	}else if statcode == 404{
 		errNotFound := errors.New("404-Not Found")
+		fmt.Println(IssueURL+ ownernrepo+ "/issues")
 		return 0 , errNotFound
 	}else if statcode == 410{
 		errGone := errors.New("410-Gone")
@@ -135,17 +151,4 @@ func CreateIssue(ownernrepo, title, body string) (int , error){
 		errUnavailable := errors.New("503-Service Unavailable")
 		return 0 , errUnavailable
 	}
-
-
-
-
-
 }
-
-
-
-
-
-
-
-
