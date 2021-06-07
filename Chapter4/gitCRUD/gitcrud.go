@@ -77,6 +77,32 @@ func createIssue(ownernrepo string) {
 	fmt.Printf("Created issue's number is : %d\n", issuenum)
 }
 
+func updateIssue(ownernrepo, issuenumber string) {
+
+	titlebyte, _ := clio.CaptureInputFromEditor(clio.GetPreferredEditorFromEnviroment)
+	titletxt := string(titlebyte)
+
+	bodybyte, _ := clio.CaptureInputFromEditor(clio.GetPreferredEditorFromEnviroment)
+	bodytxt := string(bodybyte)
+
+	// get the auth key from key.txt file
+	keybyte, err := ioutil.ReadFile("key.txt")
+	if err != nil {
+		log.Fatalf("Error occured while reading the key file : %v", err)
+	}
+	key := string(keybyte)
+	// removing the trailing newline character
+	key = strings.TrimSuffix(key, "\n")
+
+	issuenum, err := github.UpdateIssue(ownernrepo, titletxt, bodytxt, key, issuenumber)
+
+	if err != nil {
+		log.Fatalf("an error has occuded: %v\n", err)
+	}
+
+	fmt.Printf("Updated issue's number is : %d\n", issuenum)
+}
+
 func main() {
-	createIssue(os.Args[1])
+	updateIssue(os.Args[1], os.Args[2])
 }

@@ -128,12 +128,85 @@ func CreateIssue(ownernrepo, title, body, authtoken string) (int , error){
 
 	statcode := resp.StatusCode
 	if statcode == 201{
-		fmt.Println("Issue creatd successfully")
+		fmt.Println("Issue created successfully")
 		var result Issue
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return 0, err
 		}
 		return result.Number, nil
+	}else if statcode == 403{
+		errForbidden := errors.New("403-Forbidden")
+		return 0 , errForbidden
+	}else if statcode == 404{
+		errNotFound := errors.New("404-Not Found")
+		fmt.Println(IssueURL+ ownernrepo+ "/issues")
+		return 0 , errNotFound
+	}else if statcode == 410{
+		errGone := errors.New("410-Gone")
+		return 0 , errGone
+	}else if statcode == 422{
+		errNotValid := errors.New("422-Validation Failed Unprocessable Entity")
+		return 0 , errNotValid
+	}else  {
+		errUnavailable := errors.New("503-Service Unavailable")
+		return 0 , errUnavailable
+	}
+}
+
+// UpdateIssue updates given issue with provided issue number
+func UpdateIssue(ownernrepo, title, body, authtoken, issuenumber string) (int , error){
+// this function looks identical with the CreateIssue function just the http method and URL is different
+	// check if user provides an authorization key if not then throw an error
+	if authtoken == ""{
+		errNoAuth := errors.New("[!]Authorization keys not found please put you key into a key.txt file")
+		return 0, errNoAuth
+	}
+
+	// create an issue struct instance 
+	issuetosend := Issue{Title : title, Body: body}
+	// then convert int to json in order to send it with POST request
+	issuejson, err := json.Marshal(issuetosend)
+
+	if err != nil {
+		log.Fatalf("%v",err)
+		return 0, err
+	}
+	// encode the data
+	responsebody := bytes.NewBuffer(issuejson)
+	// constructing the target URL 
+	reqURL := IssueURL+ ownernrepo+ "/issues/"+issuenumber
+	// in order to add custom headers to any request we have to create a client
+	client := &http.Client{}
+
+	req, _ := http.NewRequest("PATCH",reqURL,responsebody)
+	// setting the headers as recommended
+	req.Header.Set("Authorization","token "+authtoken)
+	req.Header.Set("Accept","application/vnd.github.v3+json")
+
+	// make a post request 
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalf("%v",err)
+		return 0, err
+	}
+
+	//  close the response body after everything is done
+	defer resp.Body.Close()
+
+
+
+	statcode := resp.StatusCode
+	if statcode == 200{
+		fmt.Println("Issue updated successfully")
+		var result Issue
+		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return 0, err
+		}
+		return result.Number, nil
+	}else if statcode == 301{
+		errMovedPerm := errors.New("301- MOved Permanently")
+		return 0 , errMovedPerm
 	}else if statcode == 403{
 		errForbidden := errors.New("403-Forbidden")
 		return 0 , errForbidden
