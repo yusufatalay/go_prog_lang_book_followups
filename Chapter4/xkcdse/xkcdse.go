@@ -39,7 +39,6 @@ func fileExists(filename string) bool {
 
 func getComic(index int) (*Comic, error) {
 
-	fmt.Println(string(index))
 	resp, err := http.Get(baseURL + strconv.Itoa(index) + urlpostfix)
 	if err != nil {
 		return nil, err
