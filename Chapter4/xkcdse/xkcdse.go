@@ -155,35 +155,36 @@ func main() {
 
 	//	log.Printf("[!]Creating database file\n")
 	//	dbfile, err := os.Create("comics.db")
-
+	//
 	//	if err != nil {
 	//		fmt.Errorf("%v\n", err)
+	//		return
 	//	}
-
+	//
 	//	dbfile.Close()
 	//	log.Printf("[+]Database file created --> comics.db\n")
-
-	// open the file as a sqlite database file
+	//
+	//	// open the file as a sqlite database file
 	comicsDB, _ := sql.Open("sqlite3", "./comics.db")
-
-	// close the databse file after everything is done
-
-	// creating a table
+	//
+	//	// close the databse file after everything is done
+	//
+	//	// creating a table
 	//	createTable(comicsDB)
-
-	// insert the found comics
+	//
+	//	// insert the found comics
 	//	index := 1
 	//	for {
 	//		comic, err := getComic(index)
-
+	//
 	//		if err != nil {
 	//			log.Fatalf("%v", err)
 	//			break
 	//		}
-
+	//
 	//		insertComic(comicsDB, comic.Day+"/"+comic.Month+"/"+comic.Year, comic.Title, comic.Transcript)
 	//		index++
 	//	}
-	displaySelectedComic(comicsDB, "everything")
+	displayAllComics(comicsDB)
 	defer comicsDB.Close()
 }
