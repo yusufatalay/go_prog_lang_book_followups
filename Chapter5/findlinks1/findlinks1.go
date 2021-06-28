@@ -14,9 +14,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "findlinks1: %v\n", err)
 		os.Exit(1)
 	}
-	for _, link := range visit(nil, doc) {
-		fmt.Println(link)
-	}
+	//	for _, link := range visit(nil, doc) {
+	//		fmt.Println(link)
+	//	}
+	findEverything(doc)
 }
 
 // visit appends to links each link found in n and result
@@ -37,4 +38,20 @@ func visit(links []string, n *html.Node) []string {
 	}
 
 	return links
+}
+
+// findEverything prints all text nodes in html doc except <style> and <scritp>
+func findEverything(n *html.Node) {
+
+	if n.Type == html.ElementNode && n.Data != "script" && n.Data != "style" {
+		for _, tag := range n.Attr {
+			fmt.Printf("<%s>%s</%s>\n", n.Data, tag.Val, n.Data)
+		}
+	}
+	if n.FirstChild != nil {
+		findEverything(n.FirstChild)
+	}
+	if n.NextSibling != nil {
+		findEverything(n.NextSibling)
+	}
 }
