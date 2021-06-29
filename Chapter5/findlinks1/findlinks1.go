@@ -14,18 +14,34 @@ func main() {
 		fmt.Fprintf(os.Stderr, "findlinks1: %v\n", err)
 		os.Exit(1)
 	}
-	//	for _, link := range visit(nil, doc) {
-	//		fmt.Println(link)
-	//	}
-	findEverything(doc)
+	for _, link := range visit(nil, doc) {
+		fmt.Println(link)
+	}
+	//	findEverything(doc)
 }
 
 // visit appends to links each link found in n and result
 func visit(links []string, n *html.Node) []string {
-	if n.Type == html.ElementNode && n.Data == "a" {
-		for _, a := range n.Attr {
-			if a.Key == "href" {
-				links = append(links, a.Val)
+	if n.Type == html.ElementNode {
+		if n.Data == "a" {
+			for _, a := range n.Attr {
+				if a.Key == "href" {
+					links = append(links, a.Val)
+				}
+			}
+		}
+		if n.Data == "script" || n.Data == "image" {
+			for _, src := range n.Attr {
+				if src.Key == "src" {
+					links = append(links, src.Val)
+				}
+			}
+		}
+		if n.Data == "link" {
+			for _, l := range n.Attr {
+				if l.Key == "href" {
+					links = append(links, l.Val)
+				}
 			}
 		}
 	}
