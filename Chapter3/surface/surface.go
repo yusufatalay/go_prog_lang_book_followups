@@ -48,7 +48,7 @@ func main() {
 	fmt.Println("</svg>")
 }
 
-func corner(i, j int) (float64, float64, float64) {
+func corner(i, j int) (sx, sy, z float64) {
 	// find point (x,y) at corner of cell (i,j)
 
 	x := xyrange * (float64(i)/cells - 0.5)
@@ -62,11 +62,12 @@ func corner(i, j int) (float64, float64, float64) {
 	sx := width/2 + (x-y)*cos30*xyscale
 	sy := height/2 + (x+y)*sin30*xyscale - z*zscale
 
-	return sx, sy, z
+	return
 }
 
-func f(x, y float64) float64 {
+func f(x, y float64) (ef float64) {
 
 	r := math.Hypot(x, y) // distance from (0,0)
-	return math.Sin(r) / r
+	ef = math.Sin(r) / r
+	return
 }
