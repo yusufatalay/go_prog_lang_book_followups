@@ -17,7 +17,7 @@ func main() {
 	for _, link := range visit(nil, doc) {
 		fmt.Println(link)
 	}
-	//	findEverything(doc)
+	findEverything(doc)
 }
 
 // visit appends to links each link found in n and result
