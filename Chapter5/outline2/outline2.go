@@ -27,7 +27,7 @@ func main() {
 // x in the tree rooted at n. Both functions are optional.
 // pre is called before the children are visited (preorder) and
 // post is called after (postorder).
-func forEachNode(n *html.Node, pre, post func(n *html.Node) bool) {
+func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
 	if pre != nil {
 		pre(n)
 	}
@@ -41,7 +41,7 @@ func forEachNode(n *html.Node, pre, post func(n *html.Node) bool) {
 
 var depth int
 
-func startElement(n *html.Node) bool {
+func startElement(n *html.Node) {
 	if n.Type == html.ElementNode {
 		if n.FirstChild == nil {
 			fmt.Printf("%*s<%s %s", depth*2, "", n.Data, getAttributes(n))
@@ -59,10 +59,8 @@ func startElement(n *html.Node) bool {
 		depth++
 	}
 
-	return true
-
 }
-func endElement(n *html.Node) bool {
+func endElement(n *html.Node) {
 	if n.Type == html.TextNode || n.Type == html.CommentNode {
 		depth--
 	}
@@ -74,14 +72,8 @@ func endElement(n *html.Node) bool {
 			fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
 		}
 	}
-	return true
-}
 
-// ElementByID traverses the given html body , searches for an element with
-// given id and returns it, returns null if there is no such element
-//func ElementByID(doc *html.Node, id string) *html.Node {
-// IMPLEMENT THIS
-//}
+}
 
 // getAttributes builds a string that consists of the given node's attributes
 // and returns it
