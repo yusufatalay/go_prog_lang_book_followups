@@ -20,7 +20,7 @@ var prereqs = map[string][]string{
 	"networks":              {"operating systems"},
 	"operating systems":     {"data structures", "computer organization"},
 	"programming languages": {"data structures", "computer organization"},
-	//	"linear algebra":        {"calculus"},
+	"linear algebra":        {"calculus"},
 }
 
 func main() {
@@ -32,8 +32,6 @@ func main() {
 func topoSort(m map[string][]string) []string {
 	var order []string
 	seen := make(map[string]bool)
-	indegree := make(map[string]int)
-	var queue []string
 	// gotta declare the anon function first then assign it for recurrency
 	// visitAll is an anonymous-recursive function that visits each value of
 	// given key
@@ -44,10 +42,6 @@ func topoSort(m map[string][]string) []string {
 			// if item havent been visited before
 			if !seen[item] {
 				seen[item] = true
-				indegree[item] = len(m[item])
-				if indegree[item] == 0 {
-					queue = enqueue(queue, item)
-				}
 				visitAll(m[item])
 				order = append(order, item)
 			}
@@ -56,25 +50,7 @@ func topoSort(m map[string][]string) []string {
 	}
 
 	for key := range m {
-
 		visitAll([]string{key})
-	}
-	var viscount int
-	var poppedelement string
-	for len(queue) != 0 {
-		queue, poppedelement = dequeue(queue)
-		for _, el := range m[poppedelement] {
-			indegree[el]--
-
-			if indegree[el] == 0 {
-				queue = enqueue(queue, el)
-			}
-		}
-		viscount++
-	}
-	if viscount != len(order) {
-		fmt.Println(viscount, len(order))
-		fmt.Println("there is a cycle")
 	}
 	return order
 }
@@ -87,12 +63,14 @@ func contains(a []string, s string) bool {
 	}
 	return false
 }
-
-func enqueue(queue []string, element string) []string {
-	queue = append(queue, element) // Simply append to enqueue.
-	return queue
+func enqueue(queue[] int, element int) []int {
+  queue = append(queue, element); // Simply append to enqueue.
+  fmt.Println("Enqueued:", element);
+  return queue
 }
 
-func dequeue(queue []string) ([]string, string) {
-	return queue[1:], queue[0] // Slice off the element once it is dequeued.
+func dequeue(queue[] int) ([]int) {
+  element := queue[0]; // The first element is the one to be dequeued.
+  fmt.Println("Dequeued:", element)
+  return queue[1:]; // Slice off the element once it is dequeued.
 }
