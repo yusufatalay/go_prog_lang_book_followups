@@ -20,6 +20,43 @@ func main() {
 	if err != nil {
 		log.Fatalf("html.Parse() error: %v\n", err)
 	}
+	var depth int
+	var startElement func(n *html.Node)
+	var endElement func(n *html.Node)
+	startElement = func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			if n.FirstChild == nil {
+				fmt.Printf("%*s<%s %s", depth*2, "", n.Data, getAttributes(n))
+			} else {
+				fmt.Printf("%*s<%s %s>\n", depth*2, "", n.Data, getAttributes(n))
+			}
+			depth++
+		}
+		if n.Type == html.TextNode {
+			fmt.Printf("%*s%s\n", depth*2, "", n.Data)
+			depth++
+		}
+		if n.Type == html.CommentNode {
+			fmt.Printf("<!--%s-->\n", n.Data)
+			depth++
+		}
+
+	}
+	endElement = func(n *html.Node) {
+		if n.Type == html.TextNode || n.Type == html.CommentNode {
+			depth--
+		}
+		if n.Type == html.ElementNode {
+			depth--
+			if n.FirstChild == nil {
+				fmt.Printf("%s/>\n", "")
+			} else {
+				fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
+			}
+		}
+
+	}
+
 	forEachNode(doc, startElement, endElement)
 }
 
@@ -37,42 +74,6 @@ func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
 	if post != nil {
 		post(n)
 	}
-}
-
-var depth int
-
-func startElement(n *html.Node) {
-	if n.Type == html.ElementNode {
-		if n.FirstChild == nil {
-			fmt.Printf("%*s<%s %s", depth*2, "", n.Data, getAttributes(n))
-		} else {
-			fmt.Printf("%*s<%s %s>\n", depth*2, "", n.Data, getAttributes(n))
-		}
-		depth++
-	}
-	if n.Type == html.TextNode {
-		fmt.Printf("%*s%s\n", depth*2, "", n.Data)
-		depth++
-	}
-	if n.Type == html.CommentNode {
-		fmt.Printf("<!--%s-->\n", n.Data)
-		depth++
-	}
-
-}
-func endElement(n *html.Node) {
-	if n.Type == html.TextNode || n.Type == html.CommentNode {
-		depth--
-	}
-	if n.Type == html.ElementNode {
-		depth--
-		if n.FirstChild == nil {
-			fmt.Printf("%s/>\n", "")
-		} else {
-			fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
-		}
-	}
-
 }
 
 // getAttributes builds a string that consists of the given node's attributes
