@@ -6,25 +6,52 @@ import (
 	"strings"
 )
 
+// SYSTEM_BIT is check if the system has 64 or 32 bit architecture
+// SYSTEM_BIT == 64 if system is 64 bit, 0 if system is 32 bit
+const SYSTEM_BIT int = 32 << (^uint(0) >> 63)
+
 // IntSet is a set of small non-negative integers
 // Its zero value represents empty set
 type IntSet struct {
-	words []uint64
+	words []uint
 }
 
 // Has reports wether the set contains the non-negative value x.
 func (s *IntSet) Has(x int) bool {
-	word, bit := x/64, uint(x%64)
+	sysbit := SYSTEM_BIT
+	if SYSTEM_BIT == 0 {
+		sysbit = 32
+	}
+	word, bit := x/sysbit, uint(x%sysbit)
 	return word < len(s.words) && s.words[word]&(1<<bit) != 0
 }
 
 // Add adds the non-negative value x to the set
 func (s *IntSet) Add(x int) {
-	word, bit := x/64, uint(x%64)
+	sysbit := SYSTEM_BIT
+	if SYSTEM_BIT == 0 {
+		sysbit = 32
+	}
+	word, bit := x/sysbit, uint(x%sysbit)
 	for word >= len(s.words) {
 		s.words = append(s.words, 0)
 	}
 	s.words[word] |= 1 << bit
+}
+
+// AddAll adds all the elements to the set
+func (s *IntSet) AddAll(xs ...int) {
+	sysbit := SYSTEM_BIT
+	if SYSTEM_BIT == 0 {
+		sysbit = 32
+	}
+	for _, x := range xs {
+		word, bit := x/sysbit, uint(x%sysbit)
+		for word >= len(s.words) {
+			s.words = append(s.words, 0)
+		}
+		s.words[word] |= 1 << bit
+	}
 }
 
 // UnionWith sets s to the union of s and t
@@ -38,8 +65,41 @@ func (s *IntSet) UnionWith(t *IntSet) {
 	}
 }
 
+// IntersectWith sets s to the intersect of s and t
+func (s *IntSet) InterSectWith(t *IntSet) {
+	for i, tword := range t.words {
+		if i < len(s.words) {
+			s.words[i] &= tword
+			s.words[len(s.words)-1-i] &= 0
+		}
+	}
+}
+
+// DifferenceWith sets s to the difference between s and t
+func (s *IntSet) DifferenceWith(t *IntSet) {
+	for i, tword := range t.words {
+		if i < len(s.words) {
+			// neat little math trick here : !(p => q) only true if
+			// p is 1 and q is 0
+			s.words[i] = ^(^s.words[i] | tword)
+		}
+	}
+}
+
+func (s *IntSet) SymmetricDifference(t *IntSet) {
+	for i, tword := range t.words {
+		if i < len(s.words) {
+			s.words[i] = (s.words[i] ^ tword)
+		}
+	}
+}
+
 // String reutrns the set as a string of the form "{1 2 3}".
 func (s *IntSet) String() string {
+	sysbit := SYSTEM_BIT
+	if SYSTEM_BIT == 0 {
+		sysbit = 32
+	}
 	var buf bytes.Buffer
 	buf.WriteByte('{')
 	for i, word := range s.words {
@@ -47,12 +107,12 @@ func (s *IntSet) String() string {
 			continue
 		}
 
-		for j := 0; j < 64; j++ {
+		for j := 0; j < sysbit; j++ {
 			if word&(1<<uint(j)) != 0 {
 				if buf.Len() > len("{") {
 					buf.WriteByte(' ')
 				}
-				fmt.Fprintf(&buf, "%d", 64*i+j)
+				fmt.Fprintf(&buf, "%d", sysbit*i+j)
 			}
 		}
 	}
@@ -71,8 +131,11 @@ func (s *IntSet) Len() int {
 
 // Remove removes x from the set
 func (s *IntSet) Remove(x int) {
-
-	word, bit := x/64, uint64(x%64)
+	sysbit := SYSTEM_BIT
+	if SYSTEM_BIT == 0 {
+		sysbit = 32
+	}
+	word, bit := x/sysbit, uint(x%sysbit)
 	if s.Has(x) {
 		s.words[word] ^= 1 << bit
 	}
@@ -91,21 +154,41 @@ func (s *IntSet) Copy() *IntSet {
 	}
 	return &d
 }
+
+// Elems returns a slice that contains the elements of s
+func (s *IntSet) Elems() []int {
+	sysbit := SYSTEM_BIT
+	if SYSTEM_BIT == 0 {
+		sysbit = 32
+	}
+	var result []int
+	for i, word := range s.words {
+		if word == 0 {
+			continue
+		}
+		for j := 0; j < sysbit; j++ {
+			if word&(1<<uint(j)) != 0 {
+				result = append(result, sysbit*i+j)
+			}
+		}
+	}
+	return result
+}
 func main() {
 	var x, y IntSet
 
-	x.Add(1)
-	x.Add(144)
-	x.Add(9)
+	x.AddAll(1, 2, 3, 4, 5, 6, 9, 64, 65, 256, 42)
+	y.AddAll(4, 5, 6, 9, 42, 66)
 
-	y.Add(9)
-	y.Add(42)
-	//	fmt.Println(y.String())
-
-	x.UnionWith(&y)
-	z := x.Copy()
 	fmt.Println(x.String())
-	fmt.Println(z.String())
+	fmt.Println(y.String())
+
+	z := x.Copy().Elems()
+
+	for _, elem := range z {
+		fmt.Println(elem)
+	}
+
 	//	fmt.Println(x.String())
 	//	fmt.Println(y.String())
 	//	fmt.Println(x.Has(9), x.Has(123))
