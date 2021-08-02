@@ -1,0 +1,17 @@
+<table>
+      <tr>
+          {{range $colName := .FieldList}}
+          <th val="{{$colName}}">{{$colName}}</th>
+          {{end}}
+      </tr>
+
+         {{range .Tracks}}
+      <tr>
+         <td val="{{.Title}}">{{.Title}}</td>
+         <td val="{{.Artist}}">{{.Artist}}</td>
+         <td val="{{.Album}}">{{.Album}}</td>
+         <td val="{{.Year}}">{{.Year}}</td>
+         <td val="{{.Length}}">{{.Length}}</td>
+      </tr>
+      {{end}}
+ </table>
