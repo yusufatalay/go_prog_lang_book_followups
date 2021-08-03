@@ -80,6 +80,9 @@ func getField(T *Track, field string) interface{} {
 	return varValue
 }
 func getFieldNames(T *Track) {
+	if len(fieldNames) > 0 {
+		return
+	}
 	e := reflect.ValueOf(T).Elem()
 
 	for i := 0; i < e.NumField(); i++ {
@@ -91,18 +94,19 @@ func printTracks(w http.ResponseWriter, r *http.Request) {
 
 	// populate the fieldNames
 	getFieldNames(tracks[0])
+	ts := TemplateStruct{Tracks: tracks, FieldList: fieldNames}
+
+	t, _ := template.ParseFiles("template.html")
 
 	key := r.URL.Query()
 	if key.Get("key") == "" {
 		fieldName = "Title"
 	} else {
 		fieldName = key.Get("key")
+		key.Set("key", "")
 	}
 
 	sort.Sort(SelectiveSort{tracks, selectiveLess})
-	ts := TemplateStruct{Tracks: tracks, FieldList: fieldNames}
-	t, _ := template.ParseFiles("template.html")
-
 	fmt.Println(t.Execute(w, ts))
 
 }
