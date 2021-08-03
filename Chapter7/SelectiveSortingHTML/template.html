@@ -1,7 +1,7 @@
 <table>
       <tr>
           {{range $colName := .FieldList}}
-          <th val="{{$colName}}">{{$colName}}</th>
+          <th val="{{$colName}}"><a href="/?key={{$colName}}">{{$colName}}</a></th>
           {{end}}
       </tr>
 

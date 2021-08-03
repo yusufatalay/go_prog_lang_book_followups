@@ -36,9 +36,8 @@ var fieldNames []string
 
 // TemplateStruct will hold necessary values for the html template
 type TemplateStruct struct {
-	Tracks       []*Track
-	FieldList    []string
-	FieldListLen int
+	Tracks    []*Track
+	FieldList []string
 }
 
 func length(s string) time.Duration {
@@ -47,12 +46,6 @@ func length(s string) time.Duration {
 		panic(s)
 	}
 	return d
-}
-func printTracks(w http.ResponseWriter, r *http.Request) {
-	getFieldNames(tracks[0])
-	ts := TemplateStruct{Tracks: tracks, FieldList: fieldNames, FieldListLen: len(fieldNames)}
-	t, _ := template.ParseFiles("template.html")
-	fmt.Println(t.Execute(w, ts))
 }
 
 // SelectiveSort is same with the customSort struct
@@ -94,9 +87,27 @@ func getFieldNames(T *Track) {
 	}
 }
 
-func main() {
-	fieldName = "Album"
+func printTracks(w http.ResponseWriter, r *http.Request) {
+
+	// populate the fieldNames
+	getFieldNames(tracks[0])
+
+	key := r.URL.Query()
+	if key.Get("key") == "" {
+		fieldName = "Title"
+	} else {
+		fieldName = key.Get("key")
+	}
+
 	sort.Sort(SelectiveSort{tracks, selectiveLess})
+	ts := TemplateStruct{Tracks: tracks, FieldList: fieldNames}
+	t, _ := template.ParseFiles("template.html")
+
+	fmt.Println(t.Execute(w, ts))
+
+}
+
+func main() {
 	http.HandleFunc("/", printTracks)
 	http.ListenAndServe(":8000", nil)
 }
