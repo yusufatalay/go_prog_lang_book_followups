@@ -1,4 +1,5 @@
 // XMLSelect prints the text of selected elelements of an XML document.
+// contains exercise 7.17
 package main
 
 import (
