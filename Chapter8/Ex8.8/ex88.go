@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -20,10 +21,39 @@ func echo(c net.Conn, shout string, delay time.Duration) {
 
 func handleConn(c net.Conn) {
 	input := bufio.NewScanner(c)
+	afk := time.NewTimer(10 * time.Second)
+	text := make(chan string)
+	var wg sync.WaitGroup
+	go func() {
+		for input.Scan() {
+			text <- input.Text()
+		}
+		close(text)
+	}()
+	
+	for {
+		select{
+	case t, ok := <-text:
+		if ok{
+			wg.Add(1)
+			timeout.Reset(10*time.Second) // reset the time if the user shouts
+			go func(){
+				defer wg.Done()
+				echo(c,t, 1*time.Second)
+			}()
+		}else{
+			wg.Wait()
+			c.Close()
+			return
+		}
+	case <- afk.C:
+		afk.Stop()
+		c.Close()
+		fmt.Println("Connection timed out by afking 10 seconds")
+		return 
 
-	for input.Scan() {
-		echo(c, input.Text(), 1*time.Second)
 	}
+
 	c.Close()
 }
 

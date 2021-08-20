@@ -1,4 +1,4 @@
-// Fetch downloads the URL and rturns the name and lengthof the local file
+// Fetch downloads the URL and returns the name and length of the local file
 package main
 
 import (
