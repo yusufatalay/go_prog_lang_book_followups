@@ -1,3 +1,4 @@
+// contains exercise 8.12
 package main
 
 import (
@@ -5,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 )
 
 type client struct {
@@ -56,8 +58,17 @@ func handleConn(conn net.Conn) {
 	messages <- who + " has arrived"
 	entering <- cl
 
+	timeouttimer := time.NewTimer(time.Minute * 5) // time-out is 5 minutes
+
+	go func() {
+		<-timeouttimer.C
+		conn.Close()
+	}()
+
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
+		// reset the timer everytime user inputs
+		timeouttimer.Reset(time.Second * 10)
 		messages <- who + ": " + input.Text()
 	}
 	// NOTE ignoring potential errors from input.Err()
