@@ -49,18 +49,13 @@ func handleConn(conn net.Conn) {
 	// write to current client
 	go clientWriter(conn, ch)
 
-	// take input from the client
-	in := make(chan string)
+out:= make(chan string)
 	go clientReader(conn, in)
 
+	// initialize a client struct and set the id&msg fields
+
 	// get the connected clients ID
-	var who string
-
-	ch <- "Enter a nickname"
-
-	nick := <-in
-	who = nick
-
+	who := conn.RemoteAddr().String()
 	cl := client{ch, who}
 	ch <- "You are " + who
 	messages <- who + " has arrived"
@@ -92,13 +87,10 @@ func clientWriter(conn net.Conn, ch <-chan string) {
 	}
 }
 
-func clientReader(conn net.Conn, in chan<- string) {
-	input := bufio.NewScanner(conn)
+func clientReader(conn net.Conn, out chan <- string){
 
-	for input.Scan() {
-		in <- input.Text()
-	}
 }
+
 func main() {
 	listener, err := net.Listen("tcp", "localhost:8000")
 	if err != nil {
