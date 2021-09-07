@@ -1,4 +1,4 @@
-// contains exercise 8.12, 8.13
+// contains exercise 8.12, 8.13, 8.14 and 8.15
 package main
 
 import (
