@@ -1,3 +1,4 @@
+// Contains exercise 8.11
 package main
 
 import (

@@ -1,4 +1,5 @@
 // Contains exercise 8.6
+// Contains exercise 8.10
 package main
 
 import (
@@ -6,13 +7,14 @@ import (
 	"fmt"
 	"links"
 	"log"
+	"os"
 )
 
 var depth = flag.Int("depth", 3, "URLs reachable by at most -depth links will be fetched")
 
-func crawl(url string) []string {
+func crawl(url string, cancel <-chan struct{}) []string {
 	fmt.Println(url)
-	list, err := links.Extract(url)
+	list, err := links.Extract(url, cancel)
 
 	if err != nil {
 		log.Print(err)
@@ -23,15 +25,18 @@ func main() {
 	flag.Parse()
 	worklist := make(chan []string)  // lists of URLs , may have duplicates
 	unseenLinks := make(chan string) //de-duplicated list
-
+	cancel := make(chan struct{})
 	// Add command-line arguments to worklist
 	go func() { worklist <- flag.Args() }()
-
+	go func() {
+		os.Stdin.Read(make([]byte, 1))
+		close(cancel)
+	}()
 	// Create 20 crawler goroutines to fetch each unseen link
 	for i := 0; i < 20; i++ {
 		go func() {
 			for link := range unseenLinks {
-				founlinks := crawl(link)
+				founlinks := crawl(link, cancel)
 				go func() { worklist <- founlinks }()
 			}
 		}()
