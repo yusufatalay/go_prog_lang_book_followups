@@ -13,3 +13,5 @@ to exercises that given as homework.
 - Chapter9 Concurrency with Shared Variables --> Race condition, mutexes etc.
 - Chapter10 Packages and Go Tool --> Importing, packages, Go Tool.
 I am currently at Chapter 10.
+
+
