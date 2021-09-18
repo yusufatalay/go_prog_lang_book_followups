@@ -11,4 +11,6 @@ to exercises that given as homework.
 - Chapter7 Interfaces --> Interface types, interface satisfactory, examples about interfaces that Go provides.
 - Chapter8 Goroutines and Channels --> Goroutines , channels, parallelism, concurrency, select statement.
 - Chapter9 Concurrency with Shared Variables --> Race condition, mutexes etc.
+
+
 I am currently at Chapter 9.1. I will update this README file as I proceed.
