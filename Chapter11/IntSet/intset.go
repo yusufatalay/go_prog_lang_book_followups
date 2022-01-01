@@ -1,4 +1,4 @@
-package main
+package intset
 
 import (
 	"bytes"
@@ -173,24 +173,4 @@ func (s *IntSet) Elems() []int {
 		}
 	}
 	return result
-}
-func main() {
-	var x, y IntSet
-
-	x.AddAll(1, 2, 3, 4, 5, 6, 9, 64, 65, 256, 42)
-	y.AddAll(4, 5, 6, 9, 42, 66)
-
-	fmt.Println(x.String())
-	fmt.Println(y.String())
-
-	z := x.Copy().Elems()
-
-	for _, elem := range z {
-		fmt.Println(elem)
-	}
-
-	fmt.Println(x.String())
-	fmt.Println(y.String())
-	fmt.Println(x.Has(9), x.Has(123))
-
 }
