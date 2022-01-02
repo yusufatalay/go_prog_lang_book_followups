@@ -12,6 +12,7 @@ to exercises that given as homework.
 - Chapter8 Goroutines and Channels --> Goroutines , channels, parallelism, concurrency, select statement.
 - Chapter9 Concurrency with Shared Variables --> Race condition, mutexes etc.
 - Chapter10 Packages and Go Tool --> Importing, packages, Go Tool.
-I am currently at Chapter 10.
+- Chapter11 Testing --> Testing methodologies, profiling, coverage, benchmarking
+I am currently at Chapter 11.
 
 
