@@ -2,12 +2,20 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strconv"
 )
 
 func main() {
-	fmt.Println("vim-go")
+	// a struct that points to itself
+	type Cycle struct {
+		Value int
+		Tail  *Cycle
+	}
+	var c Cycle
+	c = Cycle{42, &c}
+	Display("c", c)
 }
 func Display(name string, x interface{}) {
 	fmt.Printf("Display %s (%T):\n", name, x)
@@ -25,11 +33,23 @@ func display(path string, v reflect.Value) {
 	case reflect.Struct:
 		for i := 0; i < v.NumField(); i++ {
 			fieldPath := fmt.Sprintf("%s.%s", path, v.Type().Field(i).Name)
+			// check if the member of the struct is a pointer
+			if v.Type().Field(i).Type.Kind() == reflect.Ptr {
+				// check if that pointer contain its parent
+				if v == v.Field(i).Elem() {
+					fmt.Fprintf(os.Stderr, "Cycle detected\n")
+					continue
+				}
+			}
 			display(fieldPath, v.Field(i))
-
 		}
 	case reflect.Map:
 		for _, key := range v.MapKeys() {
+			// type switch for exercise 12.1
+			switch key.Kind() {
+			case reflect.Slice, reflect.Struct:
+				display(path, key)
+			}
 			display(fmt.Sprintf("%s[%s]", path, formatAtom(key)), v.MapIndex(key))
 		}
 	case reflect.Ptr:
